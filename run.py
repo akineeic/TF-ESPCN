@@ -153,10 +153,16 @@ def test(ARGS):
         print("PSNR of ESPCN generated image: ", utils.PSNR(cropped, HR_image))
         print("PSNR of bicubic interpolated image: ", utils.PSNR(cropped, bicubic_image))
 
-        cv2.imshow('Original image', fullimg)
-        cv2.imshow('HR image', HR_image)
-        cv2.imshow('Bicubic HR image', bicubic_image)
-        cv2.waitKey(0)
+        cv2.imwrite('./singletest/Ori.png', fullimg)
+        cv2.imwrite('./singletest/ESPCN.png', HR_image)
+        cv2.imwrite('./singletest/bicubic.png', bicubic_image)
+
+
+        #cv2.imshow('Original image', fullimg)
+        #cv2.imshow('HR image', HR_image)
+        #cv2.imshow('Bicubic HR image', bicubic_image)
+
+        #cv2.waitKey(0)
 
 def export(ARGS):
     config = tf.ConfigProto()
@@ -177,11 +183,11 @@ def export(ARGS):
                                                                       tf.float32.as_datatype_enum)
         graph_def = TransformGraph(graph_def, ["IteratorGetNext"], ["NHWC_output"], ["sort_by_execution_order"])
 
-        filename = 'frozen_ESPCN_graph_x' + str(SCALE) + '.pb'
+        filename = './frozen-pb/frozen_ESPCN_graph_x' + str(SCALE) + '.pb'
         with tf.gfile.FastGFile(filename, 'wb') as f:
             f.write(graph_def.SerializeToString())
 
-        tf.train.write_graph(graph_def, ".", 'train.pbtxt')
+        tf.train.write_graph(graph_def, ".", './frozen-pb/train.pbtxt')
 
         #SAVE NCHW
         graph_def = sess.graph.as_graph_def()
@@ -190,10 +196,10 @@ def export(ARGS):
                                                                       ["NCHW_output"],
                                                                       tf.float32.as_datatype_enum)
         graph_def = TransformGraph(graph_def, ["IteratorGetNext"], ["NCHW_output"], ["sort_by_execution_order"])
-        filename = 'nchw_frozen_ESPCN_graph_x' + str(SCALE) + '.pb'
+        filename = './frozen-pb/nchw_frozen_ESPCN_graph_x' + str(SCALE) + '.pb'
         with tf.gfile.FastGFile(filename, 'wb') as f:
             f.write(graph_def.SerializeToString())
 
-        tf.train.write_graph(graph_def, ".", 'nchw_train.pbtxt')
+        tf.train.write_graph(graph_def, ".", './frozen-pb/nchw_train.pbtxt')
 
     print("\nExporting done!\n")
