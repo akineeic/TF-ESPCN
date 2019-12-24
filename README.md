@@ -12,7 +12,7 @@ or\
 Set training images directory\
 `python main.py --train --scale 3 --traindir /path/to/dir`
 
-To run the test:\
+To run the test:
 1. Run the test script\
 `python3 main.py --test --scale 3`\
 `python3 main.py --test --scale 3 --testimg /path/to/image`
@@ -21,7 +21,7 @@ To export file to .pb format:
 1. Run the export script\
 `python3 main.py --export --scale 3`
 
-To convert .pb file to tflite model:\
+To convert .pb file to tflite model:
 1. Enter the folder containing the pb file\
 `cd ./frozen-pb`
 2. Use toco command\
