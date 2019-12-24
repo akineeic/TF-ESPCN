@@ -20,7 +20,7 @@ class ESPCN:
         """
 
         scale = self.scale
-        channels = 1
+        channels = 3
         bias_initializer = tf.constant_initializer(value=0.1)
         initializer = tf.contrib.layers.xavier_initializer_conv2d()
         # initializer = tf.contrib.layers.variance_scaling_initializer()
@@ -64,6 +64,8 @@ class ESPCN:
         return out
 
     def ESPCN_trainable_model(self, HR_out, HR_orig):
+        HR_out = (HR_out + 1) / 2.0
+
         psnr = tf.image.psnr(HR_out, HR_orig, max_val=1.0)
 
         loss = tf.losses.mean_squared_error(HR_orig, HR_out)

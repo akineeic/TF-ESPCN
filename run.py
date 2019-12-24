@@ -34,15 +34,15 @@ def training(ARGS):
 
     ## Creating a tf.data pipeline, so it can train on a large dataset without storing it in the memory.
     ds = tf.data.Dataset.from_generator(
-        utils.gen_dataset, (tf.float32, tf.float32), (tf.TensorShape([None, None, 1]), tf.TensorShape([None, None, 1])),
+        utils.gen_dataset, (tf.float32, tf.float32), (tf.TensorShape([None, None, 3]), tf.TensorShape([None, None, 3])),
         args=[all_image_paths, SCALE])
     train_dataset = ds.batch(BATCH)
     train_dataset = train_dataset.shuffle(10000)
     iter = train_dataset.make_initializable_iterator()
     LR, HR = iter.get_next()
     EM = ESPCN.ESPCN(input=LR, scale=SCALE, learning_rate=LRATE)
-    model = EM.ESPCN_model()
-    loss, train_op, psnr = EM.ESPCN_trainable_model(model, HR)
+    HR_out = EM.ESPCN_model()
+    loss, train_op, psnr = EM.ESPCN_trainable_model(HR_out, HR)
 
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
@@ -103,11 +103,7 @@ def test(ARGS):
     img = cv2.resize(cropped, None, fx=1. / SCALE, fy=1. / SCALE, interpolation=cv2.INTER_CUBIC)
     floatimg = img.astype(np.float32) / 255.0
 
-    # Convert to YCbCr color space
-    imgYCbCr = cv2.cvtColor(floatimg, cv2.COLOR_BGR2YCrCb)
-    imgY = imgYCbCr[:, :, 0]
-
-    LR_input_ = imgY.reshape(1, imgY.shape[0], imgY.shape[1], 1)
+    LR_input_ = floatimg.reshape(1, floatimg.shape[0], floatimg.shape[1], 3)
 
     # with tf.gfile.GFile("nchw_frozen_ESPCN_graph_x2.pb", 'rb') as f:
     #     graph_def = tf.GraphDef()
@@ -138,13 +134,15 @@ def test(ARGS):
         output = sess.run(HR_tensor, feed_dict={LR_tensor: LR_input_})
 
         Y = output[0]
+        '''
         Cr = np.expand_dims(cv2.resize(imgYCbCr[:, :, 1], None, fx=SCALE, fy=SCALE, interpolation=cv2.INTER_CUBIC),
                             axis=2)
         Cb = np.expand_dims(cv2.resize(imgYCbCr[:, :, 2], None, fx=SCALE, fy=SCALE, interpolation=cv2.INTER_CUBIC),
                             axis=2)
+        '''
 
-        HR_image_YCrCb = np.concatenate((Y, Cr, Cb), axis=2)
-        HR_image = ((cv2.cvtColor(HR_image_YCrCb, cv2.COLOR_YCrCb2BGR)) * 255.0).clip(min=0, max=255)
+        # HR_image_YCrCb = np.concatenate((Y, Cr, Cb), axis=2)
+        HR_image = ((Y+1) * 127.5).clip(min=0, max=255)
         HR_image = (HR_image).astype(np.uint8)
 
         bicubic_image = cv2.resize(img, None, fx=SCALE, fy=SCALE, interpolation=cv2.INTER_CUBIC)
@@ -153,7 +151,7 @@ def test(ARGS):
         print("PSNR of ESPCN generated image: ", utils.PSNR(cropped, HR_image))
         print("PSNR of bicubic interpolated image: ", utils.PSNR(cropped, bicubic_image))
 
-        cv2.imwrite('./singletest/Ori.png', fullimg)
+        cv2.imwrite('./singletest/Ori.png', cropped)
         cv2.imwrite('./singletest/ESPCN.png', HR_image)
         cv2.imwrite('./singletest/bicubic.png', bicubic_image)
 
