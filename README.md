@@ -13,6 +13,7 @@ Set training images directory\
 `python main.py --train --scale 3 --traindir /path/to/dir`
 
 To run the test:\
+1. Run the test script\
 `python3 main.py --test --scale 3`\
 `python3 main.py --test --scale 3 --testimg /path/to/image`
 
@@ -20,9 +21,21 @@ To export file to .pb format:
 1. Run the export script\
 `python3 main.py --export --scale 3`
 
-There are trained .pb files in the export folder, for 2x, 3x and 4x scaling factors.
+To convert .pb file to tflite model:\
+1. Enter the folder containing the pb file\
+`cd ./frozen-pb`
+2. Use toco command\
+`toco\`\
+`--graph_def_file=frozen_ESPCN_graph_x4.pb\`\
+`--output_file=espcn-96.tflite\`\
+`--input_format=TENSORFLOW_GRAPHDEF\`\
+`--output_format=TFLITE\`\
+`--input_shapes=1,96,96,3\`\
+`--input_arrays=IteratorGetNext\`\
+`--output_arrays=NHWC_output`\
+Then you'll get a tflite model named espcn-96.tflite.
 
-Example:\
+Test Example:\
 (1) Original picture\
 (2) Bicubic scaled (3x) image\
 (3) ESPCN scaled (3x) image\
