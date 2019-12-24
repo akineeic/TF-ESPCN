@@ -3,7 +3,7 @@
 Tensorflow implementation of ESPCN algorithm described in [1].
 This project was done during the Google Summer of Code 2019 program with OpenCV [2].
 
-To run the training:
+<b>To run the training:</b>
 1. Download training dataset (DIV2K [3])\
 `bash download_trainds.sh`
 2. Run the training for 3X scaling factor\
@@ -12,16 +12,16 @@ or\
 Set training images directory\
 `python main.py --train --scale 3 --traindir /path/to/dir`
 
-To run the test:
+<b>To run the test:</b>
 1. Run the test script\
 `python3 main.py --test --scale 3`\
 `python3 main.py --test --scale 3 --testimg /path/to/image`
 
-To export file to .pb format:
+<b>To export file to .pb format:</b>
 1. Run the export script\
 `python3 main.py --export --scale 3`
 
-To convert .pb file to tflite model:
+<b>To convert .pb file to tflite model:</b>
 1. Enter the folder containing the pb file\
 `cd ./frozen-pb`
 2. Use toco command\
@@ -35,7 +35,7 @@ To convert .pb file to tflite model:
 `--output_arrays=NHWC_output`\
 Then you'll get a tflite model named espcn-96.tflite.
 
-Test Example:\
+<b>Test Example:</b>\
 (1) Original picture\
 (2) Bicubic scaled (3x) image\
 (3) ESPCN scaled (3x) image\
